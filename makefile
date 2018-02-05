@@ -11,4 +11,4 @@ Client: client.c client.h
 	${CC} -o Client client.c ${LDFLAGS} ${CFLAGS}
 
 clean:
-	rm Client GroupServer RegistryServer
+	rm Client GroupServer
