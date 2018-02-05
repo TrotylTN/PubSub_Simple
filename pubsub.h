@@ -1,0 +1,2 @@
+#define MAXCLIENT 100
+#define MAXSERVER 100
