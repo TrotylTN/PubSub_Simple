@@ -4,11 +4,11 @@ LDFLAGS = -lpthread -lnsl
 
 all: GroupServer Client
 
-GroupServer: groupServer_proc.c groupServer.c pubsub.h
-	${CC} groupServer_proc.c groupServer.c groupServer_xdr.c -o GroupServer ${LDFLAGS} ${CFLAGS}
+GroupServer: groupServer.cpp groupServer_proc.c pubsub.h
+	${CC} groupServer.cpp groupServer_proc.c groupServer_xdr.c -o GroupServer ${LDFLAGS} ${CFLAGS}
 
-Client: client.c client.h pubsub.h
-	${CC} -o Client client.c ${LDFLAGS} ${CFLAGS}
+Client: client.cpp pubsub.h
+	${CC} client.cpp groupServer_clnt.c groupServer_xdr.c -o Client ${LDFLAGS} ${CFLAGS}
 
 clean:
 	rm Client GroupServer
