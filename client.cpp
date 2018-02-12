@@ -7,7 +7,9 @@ using namespace std;
 int main() {
   CLIENT *clnt;
   int *result;
-  char server_addr[128];
+  char server_addr[32];
+  char self_addr[32];
+  char article_cat[128];
   int UDP_port_num;
 
   // Initially, connection status is FALSE
@@ -20,6 +22,7 @@ int main() {
   // main thread
   while (true) {
     printf("\n");
+    printf("----------------------------------------\n");
     if (!server_joined) {
       // has not joined server
       printf("You have not connected to a server\n");
@@ -35,7 +38,8 @@ int main() {
         printf("Connection cannot be established.\n");
         continue;
       }
-      result = join_1(server_addr, UDP_port_num, clnt);
+
+      result = join_1(self_addr, UDP_port_num, clnt);
 
       if (result == (int *)NULL) {
         /*
@@ -43,7 +47,7 @@ int main() {
          * the server.
          */
         clnt_perror(clnt, server_addr);
-        printf("An error occurred while calling the server\n");
+        printf("An error occurred while calling the server, try again later.\n");
         continue;
       }
       // successfully called the RPC function
@@ -58,16 +62,64 @@ int main() {
     } else {
       // joined a server, support other operation
       string op_id;
-      printf("You have connected to the server %s\n", server_addr);
-      printf("  0.Ping\n  1. Leave\n  2.subscribe\n  3. unsubscribe\n");
-      printf("  4.Publish\n  9.Exit\n");
-      printf("Please enter the operation #: \n");
+      printf("\nYou have connected to the server %s\n", server_addr);
+      printf("  0. Ping\n  1. Leave\n  2. Subscribe\n  3. Unsubscribe\n");
+      printf("  4. Publish\n  9. Exit\n");
+      printf("Please enter the operation #: ");
       cin >> op_id;
       if (op_id == "1") {
         // Leave the server
-        
+        result = leave_1(self_addr, UDP_port_num, clnt);
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+        // Destroy the client
+        clnt_destroy(clnt);
+        printf("You have successfully leaved the server %s\n", server_addr);
+        server_joined = false;
+
       } else if (op_id == "2") {
         // Subscribe some articles
+
+        printf("Please enter the article as the form below\n");
+        printf("  type;originator;org;contents(must be blank for subscribe)\n");
+        printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
+        printf("Enter the article you want to subscribe: ");
+        scanf("%s", article_cat);
+        if (sub_article_valid(article_cat) == false) {
+          printf("Your input article subscribe request is invalid\n");
+          continue;
+        }
+        result = subscribe_1(self_addr, UDP_port_num, article_cat, clnt);
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+
+
       } else if (op_id == "3") {
         // Unsubscribe some article
       } else if (op_id == "4") {
@@ -81,7 +133,5 @@ int main() {
       }
     }
   }
-
-
   return 0;
 }
