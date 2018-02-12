@@ -127,6 +127,52 @@ pubsubgroup_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
+// implementation for RPC functions for clients' usage
+int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
+  static int result;
+
+  result = 1;
+  return (&result);
+}
+
+int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
+  static int result;
+
+  result = 1;
+  return (&result);
+}
+
+int * subscribe_1_svc(char * ip_addr, int port_num, char * artcile,
+                      struct svc_req *req) {
+  static int result;
+
+  result = 1;
+  return (&result);
+}
+
+int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
+                        struct svc_req *req) {
+  static int result;
+
+  result = 1;
+  return (&result);
+}
+
+int * publish_1_svc(char * article, char * ip_addr, int port_num,
+                    struct svc_req *req) {
+   static int result;
+
+   result = 1;
+   return (&result);
+}
+
+int * ping_1_svc(struct svc_req *req) {
+  static int result;
+  result = 1;
+  return (&result);
+}
+
+
 int
 main (int argc, char **argv)
 {
