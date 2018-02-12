@@ -1,11 +1,18 @@
 // General headfile for the project
 
 #include <stdio.h>
+#include <pthread.h>
+#include <signal.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <iostream>
+#include <string>
+#include <map>
+#include <vector>
+#include <utility>
 
 #define MAXCLIENT 100
 #define MAXSERVER 100

@@ -231,6 +231,7 @@ int main() {
         server_joined = false;
         break;
       } else {
+        // not valid operation #
         printf("invalid operation #, try again.\n");
       }
     }
