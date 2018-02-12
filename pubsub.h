@@ -30,3 +30,10 @@ bool pub_article_valid(char* sub_article) {
   // TODO: check if this is a valid publish article request
   return true;
 }
+
+int article_index(pair<string, int> unique_id,
+                  string article_sub,
+                  map<pair<string, int>, vector<string> > &client_subinfo){
+  // look for the index for this article_sub in this map
+  return -1;
+}

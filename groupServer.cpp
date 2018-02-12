@@ -171,26 +171,51 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 		client_connection[make_pair(client_ip, port_num)] = false;
 		client_subinfo[make_pair(client_ip, port_num)].clear();
 		printf("Client %s:%d tried to leave the server, but it has not connected yet.\n", ip_addr, port_num);
-		// error # 3, has not established connection
+		// error # 3, connection has not established
 		result = 3;
 	}
 	pthread_mutex_unlock(&client_operation_lock);
-  result = 1;
   return (&result);
 }
 
-int * subscribe_1_svc(char * ip_addr, int port_num, char * artcile,
+int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
                       struct svc_req *req) {
   static int result;
-
-  result = 1;
+	string client_ip = string(ip_addr);
+	string article_sub = string(article);
+	pthread_mutex_lock(&client_operation_lock);
+	if (client_connection[make_pair(client_ip, port_num)] == true) {
+		// connected
+		if (article_index(make_pair(client_ip, port_num),
+											article_sub,
+										 	client_subinfo) == -1) {
+			client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
+			// successfully subscribed
+			result = 1;
+		} else {
+			printf("Client %s:%d tried to subscribe <%s>, but it's a duplicate subscribe.\n", ip_addr, port_num, article);
+			// error # 4: duplicate subscribe for a client
+			result = 4;
+		}
+	} else {
+		client_connection[make_pair(client_ip, port_num)] = false;
+		client_subinfo[make_pair(client_ip, port_num)].clear();
+		printf("Client %s:%d tried to subscribe, but it has not connected yet.\n", ip_addr, port_num);
+		// error # 3, connection has not established
+		result = 3;
+	}
+	pthread_mutex_unlock(&client_operation_lock);
   return (&result);
 }
 
 int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
                         struct svc_req *req) {
   static int result;
+	string client_ip = string(ip_addr);
+	string article_sub = string(article);
+	pthread_mutex_lock(&client_operation_lock);
 
+	pthread_mutex_unlock(&client_operation_lock);
   result = 1;
   return (&result);
 }
@@ -198,12 +223,15 @@ int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
 int * publish_1_svc(char * article, char * ip_addr, int port_num,
                     struct svc_req *req) {
    static int result;
+	 pthread_mutex_lock(&client_operation_lock);
 
+ 	 pthread_mutex_unlock(&client_operation_lock);
    result = 1;
    return (&result);
 }
 
 int * ping_1_svc(struct svc_req *req) {
+	// just ping, return successfully executed number
   static int result;
   result = 1;
   return (&result);
