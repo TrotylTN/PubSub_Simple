@@ -3,7 +3,6 @@
  * It was generated using rpcgen.
  */
 
-#include "groupServer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <rpc/pmap_clnt.h>
@@ -11,6 +10,10 @@
 #include <memory.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include "pubsub.h"
+#include "groupServer.h"
+
+using namespace std;
 
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
@@ -127,11 +130,29 @@ pubsubgroup_1(struct svc_req *rqstp, register SVCXPRT *transp)
 	return;
 }
 
+// definition for global variable
+static pthread_mutex_t client_operation_lock = PTHREAD_MUTEX_INITIALIZER;
+map< pair<string, int>, vector<string> > client_subinfo;
+map< pair<string, int>, bool> client_connection;
+
 // implementation for RPC functions for clients' usage
 int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
-
-  result = 1;
+	string client_ip = string(ip_addr);
+	pthread_mutex_lock(&client_operation_lock);
+	if (client_connection[make_pair(client_ip, port_num)] == false) {
+		client_connection[make_pair(client_ip, port_num)] = true;
+		client_subinfo[make_pair(client_ip, port_num)].clear();
+		printf("Client %s:%d connected to the server\n", ip_addr, port_num);
+		// successfully registered this client
+	  result = 1;
+	} else {
+		// This server have already resgitered
+		printf("Client %s:%d tried to connect to the server, but it has already connected\n", ip_addr, port_num);
+		result = 2;
+		// have no need to do anything, just continue
+	}
+	pthread_mutex_unlock(&client_operation_lock);
   return (&result);
 }
 
@@ -176,6 +197,11 @@ int * ping_1_svc(struct svc_req *req) {
 int
 main (int argc, char **argv)
 {
+	// reset all connection
+	client_connection.clear();
+	client_subinfo.clear();
+
+	// RPC Initialization
 	register SVCXPRT *transp;
 
 	pmap_unset (PUBSUBGROUP, PUBSUBGROUP_VER);
