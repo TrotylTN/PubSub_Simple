@@ -100,7 +100,7 @@ int main() {
         printf("Enter the article you want to subscribe: ");
         scanf("%s", article_cat);
         if (sub_article_valid(article_cat) == false) {
-          printf("Your input article subscribe request is invalid\n");
+          printf("ERROR: Your input article subscribe request is invalid\n");
           continue;
         }
         result = subscribe_1(self_addr, UDP_port_num, article_cat, clnt);
