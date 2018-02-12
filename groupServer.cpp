@@ -149,6 +149,7 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 	} else {
 		// This server have already resgitered
 		printf("Client %s:%d tried to connect to the server, but it has already connected\n", ip_addr, port_num);
+		// error # 2: duplicate connection request
 		result = 2;
 		// have no need to do anything, just continue
 	}
@@ -158,7 +159,24 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 
 int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
-
+	string client_ip = string(ip_addr);
+	pthread_mutex_lock(&client_operation_lock);
+	if (client_connection[make_pair(client_ip, port_num)] == true) {
+		// start to disconnect
+		client_connection[make_pair(client_ip, port_num)] = false;
+		client_subinfo[make_pair(client_ip, port_num)].clear();
+		printf("Client %s:%d left the server, clean all cache for it\n", ip_addr, port_num);
+		// successfully executed
+		result = 1;
+	} else {
+		// no connection found
+		client_connection[make_pair(client_ip, port_num)] = false;
+		client_subinfo[make_pair(client_ip, port_num)].clear();
+		printf("Client %s:%d tried to leave the server, but it has not connected yet.\n", ip_addr, port_num);
+		// error # 3, has not established connection
+		result = 3;
+	}
+	pthread_mutex_unlock(&client_operation_lock);
   result = 1;
   return (&result);
 }
