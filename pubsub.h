@@ -17,6 +17,9 @@
 #define MAXCLIENT 100
 #define MAXSERVER 100
 #define MAXSTRING 120
+#define MAXSUBSCRIPE 100
+
+using namespace std;
 
 bool sub_article_valid(char* sub_article) {
   // TODO: check if this is a valid subscribe article request

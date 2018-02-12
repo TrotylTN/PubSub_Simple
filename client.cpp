@@ -3,8 +3,6 @@
 #include "groupServer.h"
 #include "pubsub.h"
 
-using namespace std;
-
 int main() {
   CLIENT *clnt;
   int *result;

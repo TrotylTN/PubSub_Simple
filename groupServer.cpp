@@ -13,8 +13,6 @@
 #include "pubsub.h"
 #include "groupServer.h"
 
-using namespace std;
-
 #ifndef SIG_PF
 #define SIG_PF void(*)(int)
 #endif
