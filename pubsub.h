@@ -15,3 +15,8 @@ bool sub_article_valid(char* sub_article) {
   // TODO: check if this is a valid subscribe article request
   return true;
 }
+
+bool pub_article_valid(char* sub_article) {
+  // TODO: check if this is a valid publish article request
+  return true;
+}

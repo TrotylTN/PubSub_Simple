@@ -93,9 +93,8 @@ int main() {
 
       } else if (op_id == "2") {
         // Subscribe some articles
-
         printf("Please enter the article as the form below\n");
-        printf("  type;originator;org;contents(must be blank for subscribe)\n");
+        printf("  type;originator;org;contents(contents must be blank for subscribe)\n");
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("Enter the article you want to subscribe: ");
         scanf("%s", article_cat);
@@ -120,19 +119,122 @@ int main() {
           continue;
         }
 
+        // successfully subscribed
+        printf("Your subscribe request {%s} has been sent successfully\n", article_cat);
 
       } else if (op_id == "3") {
         // Unsubscribe some article
+
+        printf("Please enter the article as the form below\n");
+        printf("  type;originator;org;contents(contents must be blank for unsubscribe)\n");
+        printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
+        printf("Enter the article you want to unsubscribe: ");
+        scanf("%s", article_cat);
+        if (sub_article_valid(article_cat) == false) {
+          printf("ERROR: Your article unsubscribe request is invalid\n");
+          continue;
+        }
+        result = unsubscribe_1(self_addr, UDP_port_num, article_cat, clnt);
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+
+        // successfully unsubscribed
+        printf("Your unsubscribe request {%s} has been sent successfully\n", article_cat);
+
       } else if (op_id == "4") {
         // Publish an article
+        printf("Please enter the article as the form below\n");
+        printf("  type;originator;org;contents\n");
+        printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
+        printf("  For publish purpose, contents must have something and at least one of first three fields is not blank\n");
+        printf("Enter the article you want to publish: ");
+        scanf("%s", article_cat);
+        if (pub_article_valid(article_cat) == false) {
+          printf("ERROR: Your article publish request is invalid\n");
+          continue;
+        }
+
+        result = publish_1(article_cat, self_addr, UDP_port_num, clnt);
+
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+
+        // successfully published
+        printf("Your publish request {%s} has been sent successfully\n", article_cat);
       } else if (op_id == "0") {
         // Ping only
+        result = ping_1(clnt);
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+        printf("Pinged successfully\n");
+
       } else if (op_id == "9") {
         // Leave the server and Exit
+        result = leave_1(self_addr, UDP_port_num, clnt);
+        if (result == (int *)NULL) {
+          /*
+           * An error occurred while calling
+           * the server.
+           */
+          clnt_perror(clnt, server_addr);
+          printf("An error occurred while calling the server, try again later.\n");
+          continue;
+        }
+        // successfully called the RPC function
+        if (*result != 1) {
+          // unable to process your request
+          printf("The server cannot process your request, try again later.\n");
+          continue;
+        }
+        // Destroy the client
+        clnt_destroy(clnt);
+        printf("You have successfully leaved the server %s\n", server_addr);
+        server_joined = false;
+        break;
       } else {
         printf("invalid operation #, try again.\n");
       }
     }
   }
+  printf("Client has been terminated.");
   return 0;
 }
