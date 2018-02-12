@@ -31,9 +31,9 @@ bool pub_article_valid(char* sub_article) {
   return true;
 }
 
-int article_index(pair<string, int> unique_id,
-                  string article_sub,
-                  map<pair<string, int>, vector<string> > &client_subinfo){
+int article_index(const pair<string, int> &unique_id,
+                  const string &article_sub,
+                  const map<pair<string, int>, vector<string> > &client_subinfo){
   // look for the index for this article_sub in this map
 
   return -1;
@@ -41,10 +41,12 @@ int article_index(pair<string, int> unique_id,
 
 /*
   RPC call return value:
+  0: unknow error
   1: executed successfully
   2: duplicate connection request
   3: connection has not established
   4: duplicate subscribe request for a client
   5: reached the MAXSUBSCRIPE for certain client
   6: reached the limit for connected client
+  7: unsubscribe a non-existent subscripition
  */

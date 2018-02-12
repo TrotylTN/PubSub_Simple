@@ -137,6 +137,7 @@ map< pair<string, int>, bool> client_connection;
 // implementation for RPC functions for clients' usage
 int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
+	result = 0;
 	string client_ip = string(ip_addr);
 	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == false) {
@@ -167,6 +168,7 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 
 int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
+	result = 0;
 	string client_ip = string(ip_addr);
 	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
@@ -192,6 +194,7 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
                       struct svc_req *req) {
   static int result;
+	result = 0;
 	string client_ip = string(ip_addr);
 	string article_sub = string(article);
 	pthread_mutex_lock(&client_operation_lock);
@@ -229,10 +232,35 @@ int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
 int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
                         struct svc_req *req) {
   static int result;
+	result = 0;
 	string client_ip = string(ip_addr);
 	string article_sub = string(article);
+	int sub_index = -1;
 	pthread_mutex_lock(&client_operation_lock);
-
+	if (client_connection[make_pair(client_ip, port_num)] == true) {
+		// connected
+		if ((sub_index = article_index(make_pair(client_ip, port_num),
+																	 article_sub,
+										 						 	 client_subinfo)) != -1) {
+			// start to unsubscribe
+			client_subinfo[make_pair(client_ip, port_num)].erase(
+				client_subinfo[make_pair(client_ip, port_num)].begin() + sub_index
+			);
+			printf("Client %s:%d unsubscribed <%s>.\n", ip_addr, port_num, article);
+			// successfully executed
+			result = 1;
+		} else {
+			printf("Client %s:%d tried to unsubscribe <%s>, but this subscripition is not existent.\n", ip_addr, port_num, article);
+			// error # 7: unsubscribe a non-existent subscripition
+			result = 7;
+		}
+	} else {
+		client_connection[make_pair(client_ip, port_num)] = false;
+		client_subinfo[make_pair(client_ip, port_num)].clear();
+		printf("Client %s:%d tried to unsubscribe, but it has not connected yet.\n", ip_addr, port_num);
+		// error # 3, connection has not established
+		result = 3;
+	}
 	pthread_mutex_unlock(&client_operation_lock);
   result = 1;
   return (&result);
