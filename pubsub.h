@@ -1,3 +1,5 @@
+// General headfile for the project
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

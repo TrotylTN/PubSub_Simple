@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include "groupServer.h"
+#include "pubsub.h"
 
 using namespace std;
 
