@@ -130,6 +130,7 @@ pubsubgroup_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 // definition for global variable
 static pthread_mutex_t client_operation_lock = PTHREAD_MUTEX_INITIALIZER;
+static int total_client = 0;
 map< pair<string, int>, vector<string> > client_subinfo;
 map< pair<string, int>, bool> client_connection;
 
@@ -139,11 +140,20 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 	string client_ip = string(ip_addr);
 	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == false) {
-		client_connection[make_pair(client_ip, port_num)] = true;
-		client_subinfo[make_pair(client_ip, port_num)].clear();
-		printf("Client %s:%d connected to the server\n", ip_addr, port_num);
-		// successfully registered this client
-	  result = 1;
+		if (total_client < MAXCLIENT) {
+			client_connection[make_pair(client_ip, port_num)] = true;
+			client_subinfo[make_pair(client_ip, port_num)].clear();
+			printf("Client %s:%d connected to the server\n", ip_addr, port_num);
+			total_client++;
+			// successfully registered this client
+		  result = 1;
+		} else {
+			client_connection[make_pair(client_ip, port_num)] = true;
+			client_subinfo[make_pair(client_ip, port_num)].clear();
+			printf("Client %s:%d tried to connect to the server, but the number of connected clients has reached the limit %d\n", ip_addr, port_num, MAXCLIENT);
+			// error # 6 reached the limit for connected client
+			result = 6;
+		}
 	} else {
 		// This server have already resgitered
 		printf("Client %s:%d tried to connect to the server, but it has already connected\n", ip_addr, port_num);
@@ -164,7 +174,8 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 		client_connection[make_pair(client_ip, port_num)] = false;
 		client_subinfo[make_pair(client_ip, port_num)].clear();
 		printf("Client %s:%d left the server, clean all cache for it\n", ip_addr, port_num);
-		// successfully executed
+		total_client--;
+		// successfully left
 		result = 1;
 	} else {
 		// no connection found
@@ -189,9 +200,16 @@ int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
 		if (article_index(make_pair(client_ip, port_num),
 											article_sub,
 										 	client_subinfo) == -1) {
-			client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
-			// successfully subscribed
-			result = 1;
+			if (client_subinfo[make_pair(client_ip, port_num)].size() < MAXSUBSCRIPE) {
+				client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
+				// successfully subscribed
+				printf("Client %s:%d subscribed <%s>.\n", ip_addr, port_num, article);
+				result = 1;
+			} else {
+				printf("Client %s:%d tried to subscribe <%s>, but it reached the max subscribe number %d.\n", ip_addr, port_num, article, MAXSUBSCRIPE);
+				// error # 5: reached the MAXSUBSCRIPE for certain client
+				result = 5;
+			}
 		} else {
 			printf("Client %s:%d tried to subscribe <%s>, but it's a duplicate subscribe.\n", ip_addr, port_num, article);
 			// error # 4: duplicate subscribe for a client
