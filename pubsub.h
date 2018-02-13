@@ -49,5 +49,31 @@ bool pub_article_valid(char* sub_article) {
 // UDP help function implementation
 int UDP_send_packet(char *packet_content, char *dest_IP, unsigned short dest_port) {
   struct sockaddr_in si_other;
+  int s; // socket
+  int slen=sizeof(si_other);
+  if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+  {
+      perror("socket error");
+      close(s);
+      return -1;
+  }
+  memset((char *) &si_other, 0, sizeof(si_other));
+  si_other.sin_family = AF_INET;
+  si_other.sin_port = htons(dest_port);
 
+  if (inet_aton(dest_IP , &si_other.sin_addr) == 0)
+  {
+      fprintf(stderr, "inet_aton() failed\n");
+      close(s);
+      return -1;
+  }
+  // send the message
+  if (sendto(s, packet_content, strlen(packet_content), 0,
+             (struct sockaddr *) &si_other, slen)==-1) {
+    perror("sendto failed");
+    close(s);
+    return -1;
+  }
+  close(s);
+  return 0;
 }
