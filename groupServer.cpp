@@ -131,8 +131,9 @@ pubsubgroup_1(struct svc_req *rqstp, register SVCXPRT *transp)
 // definition for global variable
 static pthread_mutex_t client_operation_lock = PTHREAD_MUTEX_INITIALIZER;
 static int total_client = 0;
-map< pair<string, int>, vector<string> > client_subinfo;
-map< pair<string, int>, bool> client_connection;
+static map< pair<string, int>, vector<string> > client_subinfo;
+static map< pair<string, int>, bool> client_connection;
+static vector<pair<string, int> > connected_clients;
 
 // Lookup the index for the subscripition
 int article_index(const pair<string, int> unique_id,
@@ -143,6 +144,20 @@ int article_index(const pair<string, int> unique_id,
 			return i;
 	}
   return -1;
+}
+
+// Lookup the index for the clients
+int client_index(const pair<string, int> unique_id) {
+	for (int i = 0; i < connected_clients.size(); i++) {
+		if (connected_clients[i] == unique_id)
+			return i;
+	}
+	return -1;
+}
+
+// publish article to subscribed
+void publish_to_subscriped_clients(char *article_pub) {
+
 }
 
 // implementation for RPC functions for clients' usage
@@ -157,6 +172,7 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 			client_subinfo[make_pair(client_ip, port_num)].clear();
 			printf("Client %s:%d connected to the server\n", ip_addr, port_num);
 			total_client++;
+			connected_clients.push_back(make_pair(client_ip, port_num));
 			// successfully registered this client
 		  result = 1;
 		} else {
@@ -188,6 +204,12 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 		client_subinfo[make_pair(client_ip, port_num)].clear();
 		printf("Client %s:%d left the server, clean all cache for it\n", ip_addr, port_num);
 		total_client--;
+		int client_idx = client_index(make_pair(client_ip, port_num));
+		if (client_idx == -1) {
+			printf("error while deleting a client\n");
+		} else {
+			connected_clients.erase(connected_clients.begin() + client_idx);
+		}
 		// successfully left
 		result = 1;
 	} else {
@@ -276,13 +298,15 @@ int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
 
 int * publish_1_svc(char * article, char * ip_addr, int port_num,
                     struct svc_req *req) {
-   static int result;
-	 result = 0;
-	 pthread_mutex_lock(&client_operation_lock);
-	//  TODO: implemente publish opera
- 	 pthread_mutex_unlock(&client_operation_lock);
-   result = 1;
-   return (&result);
+  static int result;
+	result = 0;
+	pthread_mutex_lock(&client_operation_lock);
+	// publish to all available
+	publish_to_subscriped_clients(article);
+
+ 	pthread_mutex_unlock(&client_operation_lock);
+  result = 1;
+  return (&result);
 }
 
 int * ping_1_svc(struct svc_req *req) {
@@ -299,6 +323,7 @@ main (int argc, char **argv)
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
+	connected_clients.clear();
 
 	// RPC Initialization
 	register SVCXPRT *transp;
