@@ -157,9 +157,32 @@ int get_client_index(const pair<string, int> unique_id) {
 
 // check whether this client has subscribed the
 bool subscripition_match(pair<string, int> unique_id, char *article_pub) {
-	// TODO: to implement the match
+	int cur_seg_len;
+	string subscripition_seg;
+	bool if_sending = false;
 	for (int i = 0; i < client_subinfo[unique_id].size(); i ++) {
-
+		if_sending = true;
+		// first element
+		subscripition_seg = retrieve_type(client_subinfo[unique_id][i].c_str());
+		if (subscripition_seg.length() != 0) {
+			if (subscripition_seg != retrieve_type(article_pub))
+				if_sending = false;
+		}
+		// second element
+		subscripition_seg = retrieve_ogitor(client_subinfo[unique_id][i].c_str());
+		if (subscripition_seg.length() != 0) {
+			if (subscripition_seg != retrieve_ogitor(article_pub))
+				if_sending = false;
+		}
+		// third element
+		subscripition_seg = retrieve_org(client_subinfo[unique_id][i].c_str());
+		if (subscripition_seg.length() != 0) {
+			if (subscripition_seg != retrieve_org(article_pub))
+				if_sending = false;
+		}
+		if (if_sending)
+		// if all clients' required fields have been filled, return true
+			return true;
 	}
 	return false;
 }
@@ -254,10 +277,17 @@ int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
 		// connected
 		if (get_article_index(make_pair(client_ip, port_num), article_sub) == -1) {
 			if (client_subinfo[make_pair(client_ip, port_num)].size() < MAXSUBSCRIPE) {
-				client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
-				// successfully subscribed
-				printf("Client %s:%d subscribed <%s>.\n", ip_addr, port_num, article);
-				result = 1;
+				if (sub_article_valid(article)) {
+					// Here is validing the subscribe request
+					client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
+					// successfully subscribed
+					printf("Client %s:%d subscribed <%s>.\n", ip_addr, port_num, article);
+					result = 1;
+				} else {
+					printf("Client %s:%d tried to subscribe <%s>, but the request is invalid\n", ip_addr, port_num, article);
+					// error # 8: invalid subscribe or publish request
+					result = 8;
+				}
 			} else {
 				printf("Client %s:%d tried to subscribe <%s>, but it reached the max subscribe number %d.\n", ip_addr, port_num, article, MAXSUBSCRIPE);
 				// error # 5: reached the MAXSUBSCRIPE for certain client
@@ -319,12 +349,30 @@ int * publish_1_svc(char * article, char * ip_addr, int port_num,
                     struct svc_req *req) {
   static int result;
 	pthread_mutex_lock(&client_operation_lock);
+	string client_ip = string(ip_addr);
 	result = 0;
 	// publish to all available
-	publish_to_subscriped_clients(article);
-
+	if (client_connection[make_pair(client_ip, port_num)] == true) {
+		// connected
+		if (pub_article_valid(article)) {
+			// valid the publish request
+			publish_to_subscriped_clients(article);
+			printf("Client %s:%d published <%s>\n", ip_addr, port_num, article);
+			// successfully executed
+			result = 1;
+		} else {
+			printf("Client %s:%d tried to publish <%s>, but the request is invalid\n", ip_addr, port_num, article);
+			// error # 8: invalid subscribe or publish request
+			result = 8;
+		}
+	} else {
+			client_connection[make_pair(client_ip, port_num)] = false;
+			client_subinfo[make_pair(client_ip, port_num)].clear();
+			printf("Client %s:%d tried to publish <%s>, but it has not connected yet.\n", ip_addr, port_num, article);
+			// error # 3, connection has not established
+			result = 3;
+	}
  	pthread_mutex_unlock(&client_operation_lock);
-  result = 1;
   return (&result);
 }
 

@@ -24,7 +24,7 @@
 
 using namespace std;
 
-bool check_type_correctness(string a) {
+bool check_type_correctness(const string a) {
   static const string standard_types[10] = {"Sports", "Lifestyle",
                                             "Entertainment", "Business",
                                             "Technology", "Science", "Politics",
@@ -36,7 +36,7 @@ bool check_type_correctness(string a) {
   return false;
 }
 
-bool sub_article_valid(char* sub_article) {
+bool sub_article_valid(const char* sub_article) {
   int len = strlen(sub_article);
   int semi_cnt = 0;
   for (int i = 0; i < len; i++) {
@@ -77,7 +77,7 @@ bool sub_article_valid(char* sub_article) {
   return true;
 }
 
-bool pub_article_valid(char* sub_article) {
+bool pub_article_valid(const char* sub_article) {
   // TODO: check if this is a valid publish article request
   int len = strlen(sub_article);
   int semi_cnt = 0;
@@ -119,7 +119,7 @@ bool pub_article_valid(char* sub_article) {
   return true;
 }
 
-string retrieve_type(char *sub_article) {
+string retrieve_type(const char *sub_article) {
   static string res;
   int first_semi = 0;
   int len = strlen(sub_article);
@@ -132,7 +132,7 @@ string retrieve_type(char *sub_article) {
   return res;
 }
 
-string retrieve_ogitor(char *sub_article) {
+string retrieve_ogitor(const char *sub_article) {
   static string res;
   int first_semi = 0, second_semi;
   int len = strlen(sub_article);
@@ -149,7 +149,7 @@ string retrieve_ogitor(char *sub_article) {
   return res;
 }
 
-string retrieve_org(char *sub_article) {
+string retrieve_org(const char *sub_article) {
   static string res;
   int first_semi = 0, second_semi, third_semi;
   int len = strlen(sub_article);
@@ -179,6 +179,7 @@ string retrieve_org(char *sub_article) {
   5: reached the MAXSUBSCRIPE for certain client
   6: reached the limit for connected client
   7: unsubscribe a non-existent subscripition
+  8: invalid subscribe or publish request
  */
 
 // UDP help function implementation
