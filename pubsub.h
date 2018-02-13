@@ -7,7 +7,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <netinet/in.h>
 #include <sys/socket.h>
+#include <errno.h>
 #include <iostream>
 #include <string>
 #include <map>
@@ -31,14 +34,6 @@ bool pub_article_valid(char* sub_article) {
   return true;
 }
 
-int article_index(const pair<string, int> &unique_id,
-                  const string &article_sub,
-                  const map<pair<string, int>, vector<string> > &client_subinfo){
-  // look for the index for this article_sub in this map
-
-  return -1;
-}
-
 /*
   RPC call return value:
   0: unknow error
@@ -50,3 +45,9 @@ int article_index(const pair<string, int> &unique_id,
   6: reached the limit for connected client
   7: unsubscribe a non-existent subscripition
  */
+
+// UDP help function implementation
+int UDP_send_packet(char *packet_content, char *dest_IP, unsigned short dest_port) {
+  struct sockaddr_in si_other;
+
+}
