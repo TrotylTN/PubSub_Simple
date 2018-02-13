@@ -180,9 +180,9 @@ void publish_to_subscriped_clients(char *article_pub) {
 // implementation for RPC functions for clients' usage
 int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
+	pthread_mutex_lock(&client_operation_lock);
 	result = 0;
 	string client_ip = string(ip_addr);
-	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == false) {
 		if (total_client < MAXCLIENT) {
 			client_connection[make_pair(client_ip, port_num)] = true;
@@ -213,9 +213,9 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 
 int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
   static int result;
+	pthread_mutex_lock(&client_operation_lock);
 	result = 0;
 	string client_ip = string(ip_addr);
-	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
 		// start to disconnect
 		client_connection[make_pair(client_ip, port_num)] = false;
@@ -246,10 +246,10 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
                       struct svc_req *req) {
   static int result;
+	pthread_mutex_lock(&client_operation_lock);
 	result = 0;
 	string client_ip = string(ip_addr);
 	string article_sub = string(article);
-	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
 		// connected
 		if (get_article_index(make_pair(client_ip, port_num), article_sub) == -1) {
@@ -282,11 +282,11 @@ int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
 int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
                         struct svc_req *req) {
   static int result;
+	pthread_mutex_lock(&client_operation_lock);
 	result = 0;
 	string client_ip = string(ip_addr);
 	string article_sub = string(article);
 	int sub_index = -1;
-	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
 		// connected
 		if ((sub_index = get_article_index(make_pair(client_ip, port_num),
@@ -318,8 +318,8 @@ int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
 int * publish_1_svc(char * article, char * ip_addr, int port_num,
                     struct svc_req *req) {
   static int result;
-	result = 0;
 	pthread_mutex_lock(&client_operation_lock);
+	result = 0;
 	// publish to all available
 	publish_to_subscriped_clients(article);
 

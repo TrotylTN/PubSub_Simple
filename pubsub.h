@@ -24,8 +24,48 @@
 
 using namespace std;
 
+bool check_type_correctness(string a) {
+  static const string[]
+}
+
 bool sub_article_valid(char* sub_article) {
   // TODO: check if this is a valid subscribe article request
+  int len = strlen(sub_article);
+  int semi_cnt = 0;
+  for (int i = 0; i < len; i++) {
+    if (sub_article[i] == ';')
+      semi_cnt ++;
+  }
+  if (semi_cnt != 3)
+  // must contain exactly 3 ';'
+    return false;
+
+  int first_semi = 0, second_semi, third_semi;
+  while (first_semi < len && sub_article[first_semi] != ';')
+    first_semi ++;
+  second_semi = first_semi + 1;
+  while (second_semi < len && sub_article[second_semi] != ';')
+    second_semi ++;
+  third_semi = second_semi + 1;
+  while (third_semi < len && sub_article[third_semi] != ';')
+    third_semi ++;
+
+  int first_seg = first_semi;
+  int second_seg = second_semi - first_semi - 1;
+  int third_seg = third_semi - second_semi - 1;
+  int forth_seg = len - 1 - third_semi;
+  if (forth_seg != 0)
+  // must be blank to subscribe
+    return false;
+  if (first_seg == 0 && second_seg == 0 && third_seg == 0)
+  // must have something
+    return false;
+  if (first_seg > 0) {
+    char buf[MAXSTRING];
+    strncpy(buf, sub_article, first_semi);
+    string art_type = string(buf);
+
+  }
   return true;
 }
 
