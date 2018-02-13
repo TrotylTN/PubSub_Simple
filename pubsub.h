@@ -35,18 +35,21 @@ bool pub_article_valid(char* sub_article) {
 }
 
 string retrieve_type(char *sub_article) {
-  int first_semi;
+  static string res;
+  int first_semi = 0;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
   while (first_semi < len && sub_article[first_semi] != ';')
     first_semi ++;
   strncpy(buf, sub_article, first_semi);
   buf[first_semi] = 0;
-  return string(buf);
+  res = string(buf);
+  return res;
 }
 
 string retrieve_ogitor(char *sub_article) {
-  int first_semi, second_semi;
+  static string res;
+  int first_semi = 0, second_semi;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
   while (first_semi < len && sub_article[first_semi] != ';')
@@ -57,11 +60,13 @@ string retrieve_ogitor(char *sub_article) {
   len = second_semi - first_semi - 1;
   strncpy(buf, sub_article + first_semi + 1, len);
   buf[len] = 0;
-  return string(buf);
+  res = string(buf);
+  return res;
 }
 
 string retrieve_org(char *sub_article) {
-  int first_semi, second_semi, third_semi;
+  static string res;
+  int first_semi = 0, second_semi, third_semi;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
   while (first_semi < len && sub_article[first_semi] != ';')
@@ -75,7 +80,8 @@ string retrieve_org(char *sub_article) {
   len = third_semi - second_semi - 1;
   strncpy(buf, sub_article + second_semi + 1, len);
   buf[len] = 0;
-  return string(buf);
+  res = string(buf);
+  return res;
 }
 
 /*

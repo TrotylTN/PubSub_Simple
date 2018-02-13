@@ -12,3 +12,6 @@ Client: client.cpp pubsub.h
 
 clean:
 	rm Client GroupServer
+
+test: test.cpp pubsub.h
+	g++ test.cpp -o test
