@@ -138,6 +138,10 @@ map< pair<string, int>, bool> client_connection;
 int article_index(const pair<string, int> unique_id,
                   const string article_sub){
   // look for the index for this article_sub in this map
+	for (int i = 0; i < client_subinfo[unique_id].size(); i ++) {
+		if (client_subinfo[unique_id][i] == article_sub)
+			return i;
+	}
   return -1;
 }
 
