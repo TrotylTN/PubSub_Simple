@@ -135,6 +135,54 @@ static map< pair<string, int>, vector<string> > client_subinfo;
 static map< pair<string, int>, bool> client_connection;
 static vector<pair<string, int> > connected_clients;
 
+// Group Server receiving heatbeat from registery server
+void * hearing_heatbeat(void *arg) {
+	int port_num = *((int *) arg);
+	struct sockaddr_in si_me, si_other;
+
+	int s, i, slen = sizeof(si_other) , recv_len;
+	char buf[512];
+	char dest_IP[32];
+	int dest_port;
+	//create a UDP socket
+	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+		perror("creating socket failed");
+		return NULL;
+	}
+	// zero out the structure
+	memset((char *) &si_me, 0, sizeof(si_me));
+	si_me.sin_family = AF_INET;
+	si_me.sin_port = htons(port_num);
+	si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+	if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1) {
+		perror("bind error");
+		return NULL;
+	}
+	// listening for data
+	while (1) {
+		printf("Server start receiving heatbeat by Port [%d]\n", port_num);
+    fflush(stdout);
+		memset(buf, '\0', sizeof(buf));
+
+		socklen_t socketlen = slen;
+		if ((recv_len = recvfrom(s, buf, 512, 0, (struct sockaddr *) &si_other, &socketlen)) == -1) {
+				perror("recfrom error");
+				return NULL;
+		}
+		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
+		dest_port = ntohs(si_other.sin_port);
+		printf("received \"%s\" from %s:%d\n", buf, dest_IP, dest_port);
+
+		// reply
+		if (sendto(s, buf, recv_len, 0, (struct sockaddr*) &si_other, slen) == -1)
+		{
+			perror("replying error");
+			return NULL;
+		}
+	}
+	return NULL;
+}
+
 // Lookup the index for the subscripition
 int get_article_index(const pair<string, int> unique_id,
                   const string article_sub){

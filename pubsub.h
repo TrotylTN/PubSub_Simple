@@ -219,8 +219,6 @@ int UDP_send_packet(const char *packet_content,
   return 0;
 }
 
-// Group Server receiving heatbeat from registery server
-
 // get local ip address
 string get_local_IP(void) {
   struct ifaddrs *ifa=NULL, *i=NULL;
