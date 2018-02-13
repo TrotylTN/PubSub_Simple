@@ -19,7 +19,7 @@
 
 #define MAXCLIENT 100
 #define MAXSERVER 100
-#define MAXSTRING 120
+#define MAXSTRING 128
 #define MAXSUBSCRIPE 100
 
 using namespace std;
@@ -32,6 +32,50 @@ bool sub_article_valid(char* sub_article) {
 bool pub_article_valid(char* sub_article) {
   // TODO: check if this is a valid publish article request
   return true;
+}
+
+string retrieve_type(char *sub_article) {
+  int first_semi;
+  int len = strlen(sub_article);
+  char buf[MAXSTRING];
+  while (first_semi < len && sub_article[first_semi] != ';')
+    first_semi ++;
+  strncpy(buf, sub_article, first_semi);
+  buf[first_semi] = 0;
+  return string(buf);
+}
+
+string retrieve_ogitor(char *sub_article) {
+  int first_semi, second_semi;
+  int len = strlen(sub_article);
+  char buf[MAXSTRING];
+  while (first_semi < len && sub_article[first_semi] != ';')
+    first_semi ++;
+  second_semi = first_semi + 1;
+  while (second_semi < len && sub_article[second_semi] != ';')
+    second_semi ++;
+  len = second_semi - first_semi - 1;
+  strncpy(buf, sub_article + first_semi + 1, len);
+  buf[len] = 0;
+  return string(buf);
+}
+
+string retrieve_org(char *sub_article) {
+  int first_semi, second_semi, third_semi;
+  int len = strlen(sub_article);
+  char buf[MAXSTRING];
+  while (first_semi < len && sub_article[first_semi] != ';')
+    first_semi ++;
+  second_semi = first_semi + 1;
+  while (second_semi < len && sub_article[second_semi] != ';')
+    second_semi ++;
+  third_semi = second_semi + 1;
+  while (third_semi < len && sub_article[third_semi] != ';')
+    third_semi ++;
+  len = third_semi - second_semi - 1;
+  strncpy(buf, sub_article + second_semi + 1, len);
+  buf[len] = 0;
+  return string(buf);
 }
 
 /*

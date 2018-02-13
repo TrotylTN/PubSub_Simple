@@ -157,7 +157,10 @@ int get_client_index(const pair<string, int> unique_id) {
 
 // check whether this client has subscribed the
 bool subscripition_match(pair<string, int> unique_id, char *article_pub) {
-	// TODO: to implement the match 
+	// TODO: to implement the match
+	for (int i = 0; i < client_subinfo[unique_id].size(); i ++) {
+
+	}
 	return false;
 }
 

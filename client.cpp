@@ -8,7 +8,7 @@ int main() {
   int *result;
   char server_addr[32];
   char self_addr[32];
-  char article_cat[128];
+  char article_cat[MAXSTRING];
   int UDP_port_num;
 
   // Initially, connection status is FALSE
