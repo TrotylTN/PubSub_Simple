@@ -6,4 +6,7 @@ int main() {
   cout << retrieve_type(article) << endl;
   cout << retrieve_ogitor(article) << endl;
   cout << retrieve_org(article) << endl;
+
+  cout << endl << sub_article_valid(article) << endl;
+  cout << endl << pub_article_valid(article) << endl;
 }
