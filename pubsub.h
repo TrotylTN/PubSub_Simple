@@ -25,7 +25,15 @@
 using namespace std;
 
 bool check_type_correctness(string a) {
-  static const string[]
+  static const string standard_types[10] = {"Sports", "Lifestyle",
+                                            "Entertainment", "Business",
+                                            "Technology", "Science", "Politics",
+                                            "Health"};
+  for (int i = 0; i < 8; i ++) {
+    if (a == standard_types[i])
+      return true;
+  }
+  return false;
 }
 
 bool sub_article_valid(char* sub_article) {
@@ -64,7 +72,8 @@ bool sub_article_valid(char* sub_article) {
     char buf[MAXSTRING];
     strncpy(buf, sub_article, first_semi);
     string art_type = string(buf);
-
+    if (!check_type_correctness(art_type))
+      return false;
   }
   return true;
 }
