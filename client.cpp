@@ -14,6 +14,10 @@ int main() {
   // Initially, connection status is FALSE
   bool server_joined = false;
 
+  string self_addr_in_string = get_local_IP();
+  strncpy(self_addr, self_addr_in_string.c_str(), 32);
+  printf("Local IP Address is %s\n", self_addr);
+
   printf("Please enter the port # you would like to receive article: ");
   cin >> UDP_port_num;
   // TODO: create a thread to bind the port to receive UDP packet
