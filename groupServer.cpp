@@ -136,7 +136,7 @@ static map< pair<string, int>, bool> client_connection;
 static vector<pair<string, int> > connected_clients;
 
 // Lookup the index for the subscripition
-int article_index(const pair<string, int> unique_id,
+int get_article_index(const pair<string, int> unique_id,
                   const string article_sub){
   // look for the index for this article_sub in this map
 	for (int i = 0; i < client_subinfo[unique_id].size(); i ++) {
@@ -147,7 +147,7 @@ int article_index(const pair<string, int> unique_id,
 }
 
 // Lookup the index for the clients
-int client_index(const pair<string, int> unique_id) {
+int get_client_index(const pair<string, int> unique_id) {
 	for (int i = 0; i < connected_clients.size(); i++) {
 		if (connected_clients[i] == unique_id)
 			return i;
@@ -204,7 +204,7 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 		client_subinfo[make_pair(client_ip, port_num)].clear();
 		printf("Client %s:%d left the server, clean all cache for it\n", ip_addr, port_num);
 		total_client--;
-		int client_idx = client_index(make_pair(client_ip, port_num));
+		int client_idx = get_client_index(make_pair(client_ip, port_num));
 		if (client_idx == -1) {
 			printf("error while deleting a client\n");
 		} else {
@@ -233,7 +233,7 @@ int * subscribe_1_svc(char * ip_addr, int port_num, char * article,
 	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
 		// connected
-		if (article_index(make_pair(client_ip, port_num), article_sub) == -1) {
+		if (get_article_index(make_pair(client_ip, port_num), article_sub) == -1) {
 			if (client_subinfo[make_pair(client_ip, port_num)].size() < MAXSUBSCRIPE) {
 				client_subinfo[make_pair(client_ip, port_num)].push_back(article_sub);
 				// successfully subscribed
@@ -270,8 +270,8 @@ int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
 	pthread_mutex_lock(&client_operation_lock);
 	if (client_connection[make_pair(client_ip, port_num)] == true) {
 		// connected
-		if ((sub_index = article_index(make_pair(client_ip, port_num),
-																	 article_sub)) != -1) {
+		if ((sub_index = get_article_index(make_pair(client_ip, port_num),
+																	 		 article_sub)) != -1) {
 			// start to unsubscribe
 			client_subinfo[make_pair(client_ip, port_num)].erase(
 				client_subinfo[make_pair(client_ip, port_num)].begin() + sub_index
