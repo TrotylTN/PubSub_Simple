@@ -155,9 +155,23 @@ int get_client_index(const pair<string, int> unique_id) {
 	return -1;
 }
 
+// check whether this client has subscribed the
+bool subscripition_match(pair<string, int> unique_id, char *article_pub) {
+	// TODO: to implement the match 
+	return false;
+}
+
 // publish article to subscribed
 void publish_to_subscriped_clients(char *article_pub) {
-
+  for (int i = 0; i < connected_clients.size(); i++) {
+		if (subscripition_match(connected_clients[i], article_pub)) {
+			string dest_IP = connected_clients[i].first;
+			int port_num = connected_clients[i].second;
+			if (UDP_send_packet(article_pub, dest_IP.c_str(), port_num) == -1) {
+				printf("Tried to send article to %s:%d but failed\n", dest_IP.c_str(), port_num);
+			}
+		}
+	}
 }
 
 // implementation for RPC functions for clients' usage
@@ -172,6 +186,7 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 			client_subinfo[make_pair(client_ip, port_num)].clear();
 			printf("Client %s:%d connected to the server\n", ip_addr, port_num);
 			total_client++;
+			// insert this client into the list
 			connected_clients.push_back(make_pair(client_ip, port_num));
 			// successfully registered this client
 		  result = 1;
@@ -208,6 +223,7 @@ int * leave_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 		if (client_idx == -1) {
 			printf("error while deleting a client\n");
 		} else {
+			// remove this client from the list
 			connected_clients.erase(connected_clients.begin() + client_idx);
 		}
 		// successfully left

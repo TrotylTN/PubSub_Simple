@@ -47,7 +47,9 @@ bool pub_article_valid(char* sub_article) {
  */
 
 // UDP help function implementation
-int UDP_send_packet(char *packet_content, char *dest_IP, unsigned short dest_port) {
+int UDP_send_packet(const char *packet_content,
+                    const char *dest_IP,
+                    const unsigned short dest_port) {
   struct sockaddr_in si_other;
   int s; // socket
   int slen=sizeof(si_other);
