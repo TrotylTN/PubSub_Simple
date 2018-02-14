@@ -72,6 +72,7 @@ bool sub_article_valid(const char* sub_article) {
     return false;
   if (first_seg > 0) {
     char buf[MAXSTRING];
+    memset(buf, 0, sizeof buf);
     strncpy(buf, sub_article, first_semi);
     string art_type = string(buf);
     if (!check_type_correctness(art_type))
@@ -114,6 +115,7 @@ bool pub_article_valid(const char* sub_article) {
     return false;
   if (first_seg > 0) {
     char buf[MAXSTRING];
+    memset(buf, 0, sizeof buf);
     strncpy(buf, sub_article, first_semi);
     string art_type = string(buf);
     if (!check_type_correctness(art_type))
@@ -127,6 +129,7 @@ string retrieve_type(const char *sub_article) {
   int first_semi = 0;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
+  memset(buf, 0, sizeof buf);
   while (first_semi < len && sub_article[first_semi] != ';')
     first_semi ++;
   strncpy(buf, sub_article, first_semi);
@@ -140,6 +143,7 @@ string retrieve_ogitor(const char *sub_article) {
   int first_semi = 0, second_semi;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
+  memset(buf, 0, sizeof buf);
   while (first_semi < len && sub_article[first_semi] != ';')
     first_semi ++;
   second_semi = first_semi + 1;
@@ -157,6 +161,7 @@ string retrieve_org(const char *sub_article) {
   int first_semi = 0, second_semi, third_semi;
   int len = strlen(sub_article);
   char buf[MAXSTRING];
+  memset(buf, 0, sizeof buf);
   while (first_semi < len && sub_article[first_semi] != ';')
     first_semi ++;
   second_semi = first_semi + 1;
