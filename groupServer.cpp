@@ -518,13 +518,13 @@ string GetList(string self_IP, int self_port) {
 void * listen_to_cmd(void *arg) {
 	int port_num = *((int *) arg);
 	while (true) {
-		char op;
+		char op[256];
 		printf("Please enter the number to control the server.\n");
 		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice: ");
-		op = getchar();
-		if (op == '1')
+		scanf("%s", op);
+		if (string(op) == "1")
 			GetList(self_IP, port_num);
-		else if (op == '2') {
+		else if (string(op) == "2") {
 			Deregister(self_IP, port_num);
 			exit(0);
 		}
