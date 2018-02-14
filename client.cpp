@@ -3,6 +3,47 @@
 #include "groupServer.h"
 #include "pubsub.h"
 
+void * receiving_article(void *arg) {
+	int port_num = *((int *) arg);
+	struct sockaddr_in si_me, si_other;
+
+	int s, i, slen = sizeof(si_other) , recv_len;
+	char buf[512];
+	char dest_IP[32];
+	int dest_port;
+	//create a UDP socket
+	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+		perror("creating socket failed");
+		return NULL;
+	}
+	// zero out the structure
+	memset((char *) &si_me, 0, sizeof(si_me));
+	si_me.sin_family = AF_INET;
+	si_me.sin_port = htons(port_num);
+	si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+	if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1) {
+		perror("bind error");
+		return NULL;
+	}
+	// listening for data
+	while (1) {
+		printf("start receiving articles by Port [%d]\n", port_num);
+    fflush(stdout);
+		memset(buf, '\0', sizeof(buf));
+
+		socklen_t socketlen = slen;
+		if ((recv_len = recvfrom(s, buf, 512, 0, (struct sockaddr *) &si_other, &socketlen)) == -1) {
+				perror("recfrom error");
+				return NULL;
+		}
+		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
+		dest_port = ntohs(si_other.sin_port);
+		printf("received article <%s> from %s:%d\n\n", buf, dest_IP, dest_port);
+	}
+	return NULL;
+}
+
+
 int main() {
   CLIENT *clnt;
   int *result;
@@ -10,7 +51,7 @@ int main() {
   char self_addr[32];
   char article_cat[MAXSTRING];
   int UDP_port_num;
-
+  pthread_t t_receive_article;
   // Initially, connection status is FALSE
   bool server_joined = false;
 
@@ -20,8 +61,13 @@ int main() {
 
   printf("Please enter the port # you would like to receive article: ");
   cin >> UDP_port_num;
-  // TODO: create a thread to bind the port to receive UDP packet
-
+  // create a thread to bind the port to receive UDP packet for article
+  pthread_create(
+    &t_receive_article,
+    NULL,
+    receiving_article,
+    (void *) &UDP_port_num
+  );
   // main thread
   while (true) {
     printf("\n");
