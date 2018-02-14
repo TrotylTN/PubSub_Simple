@@ -277,10 +277,10 @@ int * join_1_svc(char * ip_addr, int port_num, struct svc_req *req) {
 			result = 6;
 		}
 	} else {
-		// This server have already resgitered
-		printf("Client %s:%d tried to connect to the server, but it has already connected\n", ip_addr, port_num);
-		// error # 2: duplicate connection request
-		result = 2;
+		// This server have already resgitered, reconnecting
+		client_connection[make_pair(client_ip, port_num)] = true;
+		printf("Client %s:%d re-connected to the server\n", ip_addr, port_num);
+		result = 1;
 		// have no need to do anything, just continue
 	}
 	pthread_mutex_unlock(&client_operation_lock);
@@ -564,6 +564,7 @@ main (int argc, char **argv)
 
 	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
 	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
+	sleep(1);
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
