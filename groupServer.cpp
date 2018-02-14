@@ -533,7 +533,7 @@ void * listen_to_cmd(void *arg) {
 }
 
 void stop_server(int signo) {
-	printf("Be enforced exiting...\n");
+	printf("\nBeing enforced exiting...\n");
 	Deregister(self_IP, port_num);
 	printf("Deregistered this server\n");
   exit(0);
@@ -545,7 +545,6 @@ main (int argc, char **argv)
 	struct sigaction act;
 	act.sa_handler = stop_server;
 	sigfillset(&act.sa_mask);
-	sigaction(SIGINT, &act, NULL);
 
 	self_IP = get_local_IP();
 	pthread_t t_heartbeat;
@@ -555,7 +554,8 @@ main (int argc, char **argv)
 
 	// Register the server
 	Register(self_IP, port_num);
-
+	sigaction(SIGINT, &act, NULL);
+	
 	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
 	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
 	// reset all connection
