@@ -435,6 +435,11 @@ int * ping_1_svc(struct svc_req *req) {
 int
 main (int argc, char **argv)
 {
+	int port_num;
+	pthread_t t_heatbeat;
+	printf("Enter the port you would like to listen to the server's heatbeat:");
+	cin >> port_num;
+	pthread_create(&t_heatbeat, NULL, hearing_heatbeat, (void *) &port_num);
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
