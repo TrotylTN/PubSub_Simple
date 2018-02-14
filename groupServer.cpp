@@ -130,12 +130,15 @@ pubsubgroup_1(struct svc_req *rqstp, register SVCXPRT *transp)
 
 // definition for global variable
 static pthread_mutex_t client_operation_lock = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t shared_access = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t res_updated = PTHREAD_COND_INITIALIZER;
 static int total_client = 0;
 static map< pair<string, int>, vector<string> > client_subinfo;
 static map< pair<string, int>, bool> client_connection;
 static vector<pair<string, int> > connected_clients;
 static string self_IP;
 static int port_num;
+static string shared_GetList_res = "NULL";
 
 // Lookup the index for the subscripition
 int get_article_index(const pair<string, int> unique_id,
@@ -423,13 +426,22 @@ void * hearing_heartbeat(void *arg) {
 			perror("recfrom error");
 			return NULL;
 		}
-		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
-		dest_port = ntohs(si_other.sin_port);
-		printf("received \"%s\" from %s:%d, replying...\n", buf, dest_IP, dest_port);
+		if (string(buf) == "heartbeat") {
+			// heartbeat
+			strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
+			dest_port = ntohs(si_other.sin_port);
+			printf("received \"%s\" from %s:%d, replying...\n", buf, dest_IP, dest_port);
 
-		// reply
-		UDP_send_packet(buf, REG_SERVER, REG_PORT);
-		printf("heartbeat \"%s\" replied to %s:%d\n", buf, REG_SERVER, REG_PORT);
+			// reply
+			UDP_send_packet(buf, REG_SERVER, REG_PORT);
+			printf("heartbeat \"%s\" replied to %s:%d\n", buf, REG_SERVER, REG_PORT);
+		} else {
+			// reply for UDP
+			pthread_mutex_lock(&shared_access);
+			shared_GetList_res = string(buf);
+			pthread_cond_signal(&res_updated);
+			pthread_mutex_unlock(&shared_access);
+		}
 	}
 	close(s);
 	return NULL;
@@ -502,19 +514,24 @@ string GetList(string self_IP, int self_port) {
 		return "";
 	}
 	printf("GetList(%s) request sent.\n", buf);
-
-	// receiving data
-	memset(buf, 0, sizeof buf);
-	socklen_t socketlen = slen;
-	if (recvfrom(s, buf, 1024, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
-	{
-			perror("recvfrom()");
-			close(s);
-			return "";
-	}
-	result = string(buf);
-	printf("return value for GetList() is: [%s]\n", result.c_str());
 	close(s);
+	// receiving data
+	pthread_mutex_lock(&shared_access);
+	pthread_cond_wait(&res_updated, &shared_access);
+	result = shared_GetList_res;
+	shared_GetList_res = "";
+	pthread_mutex_unlock(&shared_access);
+
+	// memset(buf, 0, sizeof buf);
+	// socklen_t socketlen = slen;
+	// if (recvfrom(s, buf, 1024, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
+	// {
+	// 		perror("recvfrom()");
+	// 		close(s);
+	// 		return "";
+	// }
+	// result = string(buf);
+	printf("return value for GetList() is: [%s]\n", result.c_str());
 	return result;
 }
 
