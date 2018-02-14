@@ -10,6 +10,8 @@ void * receiving_article(void *arg) {
 	int s, i, slen = sizeof(si_other) , recv_len;
 	char buf[512];
 	char dest_IP[32];
+	memset(buf, 0, sizeof buf);
+	memset(dest_IP, 0, sizeof dest_IP);
 	int dest_port;
 	//create a UDP socket
 	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
@@ -50,6 +52,9 @@ int main() {
   char server_addr[32];
   char self_addr[32];
   char article_cat[MAXSTRING];
+	memset(server_addr, 0, sizeof server_addr);
+	memset(self_addr, 0, sizeof self_addr);
+	memset(article_cat, 0, sizeof article_cat);
   int UDP_port_num;
   pthread_t t_receive_article;
   // Initially, connection status is FALSE
