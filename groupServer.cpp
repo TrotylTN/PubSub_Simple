@@ -134,7 +134,8 @@ static int total_client = 0;
 static map< pair<string, int>, vector<string> > client_subinfo;
 static map< pair<string, int>, bool> client_connection;
 static vector<pair<string, int> > connected_clients;
-
+static string self_IP;
+static int port_num;
 // Group Server receiving heartbeat from registery server
 void * hearing_heartbeat(void *arg) {
 	int port_num = *((int *) arg);
@@ -451,7 +452,7 @@ void Deregister(string self_IP, int self_port) {
 	memset(buf, 0, sizeof buf);
 	string combined_str;
 	// ​[“Deregister;RPC;IP;Port”]
-	combined_str = "“Deregister;RPC;" + self_IP + ";" + to_string(self_port);
+	combined_str = "Deregister;RPC;" + self_IP + ";" + to_string(self_port);
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, "128.101.35.147", 5105);
@@ -462,17 +463,101 @@ string GetList(string self_IP, int self_port) {
 	// TODO
 	char buf[1024];
 	memset(buf, 0, sizeof buf);
+	string combined_str;
+	// [“GetList;RPC;IP;Port”]
+	combined_str = "GetList;RPC;" + self_IP + ";" + to_string(self_port);
+	strncpy(buf, combined_str.c_str(), 1024);
+	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
+	char dest_IP[32] = "128.101.35.147";
+	unsigned short dest_port = 5105;
+	string result = "";
+
+	struct sockaddr_in si_other;
+	int s; // socket
+	int slen=sizeof(si_other);
+	if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+	{
+			perror("socket error");
+			close(s);
+			return "";
+	}
+	memset((char *) &si_other, 0, sizeof(si_other));
+	si_other.sin_family = AF_INET;
+	si_other.sin_port = htons(dest_port);
+
+	if (inet_aton(dest_IP , &si_other.sin_addr) == 0)
+	{
+			fprintf(stderr, "inet_aton() failed\n");
+			close(s);
+			return "";
+	}
+	// send the message
+	if (sendto(s, buf, strlen(buf), 0,
+						 (struct sockaddr *) &si_other, slen)==-1) {
+		perror("sendto failed");
+		close(s);
+		return "";
+	}
+	printf("GetList(%s) request sent.", buf);
+
+	// receiving data
+	memset(buf, 0, sizeof buf);
+	socklen_t socketlen = slen;
+	if (recvfrom(s, buf, 1024, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
+	{
+			perror("recvfrom()");
+			close(s);
+			return "";
+	}
+	result = string(buf);
+	printf("return value for GetList() is: [%s]\n", result.c_str());
+	close(s);
+	return result;
+}
+
+void * listen_to_cmd(void *arg) {
+	int port_num = *((int *) arg);
+	while (true) {
+		int op;
+		printf("Please enter the number to control the server.\n");
+		printf("  1. GetList()\n  2. Deregister()\nEnter your choice: ");
+		cin >> op;
+		if (op == 1)
+			GetList(self_IP, port_num);
+		else if (op == 2)
+			Deregister(self_IP, port_num);
+		else
+			printf("invalid operation. Try again\n\n");
+	}
+	return NULL;
+}
+
+void stop_server(int signo) {
+	printf("Be enforced exiting...\n");
+	Deregister(self_IP, port_num);
+	printf("Deregistered this server\n");
+  exit(0);
 }
 
 int
 main (int argc, char **argv)
 {
-	string self_IP = get_local_IP();
-	int port_num;
+	struct sigaction act;
+	act.sa_handler = stop_server;
+	sigfillset(&act.sa_mask);
+	sigaction(SIGINT, &act, NULL);
+
+	self_IP = get_local_IP();
 	pthread_t t_heartbeat;
+	pthread_t t_listen_cmd;
 	printf("Enter the port you would like to listen to the server's heartbeat:");
 	cin >> port_num;
+
+	// Register the server
+	Register(self_IP, port_num);
+
 	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
+	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
