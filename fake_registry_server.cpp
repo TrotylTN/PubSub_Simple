@@ -7,6 +7,7 @@
 #include<arpa/inet.h>
 #include<sys/socket.h>
 #include<unistd.h>
+#include<string>
 
 #define SERVER "128.101.37.48"
 #define BUFLEN 512  //Max length of buffer
@@ -58,53 +59,53 @@ int main(void)
   int s, i, slen=sizeof(si_other);
   char buf[BUFLEN];
   char message[BUFLEN];
-  /*
 
 
-    if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-    {
-        die("socket");
-    }
-
-    memset((char *) &si_other, 0, sizeof(si_other));
-    si_other.sin_family = AF_INET;
-    si_other.sin_port = htons(PORT);
-
-    if (inet_aton(SERVER , &si_other.sin_addr) == 0)
-    {
-        fprintf(stderr, "inet_aton() failed\n");
-        exit(1);
-    }
-    char heartbuf[128] = "heartbeat";
-    close(s);
-
-    if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-    {
-        die("socket");
-    }
-    memset((char *) &si_me, 0, sizeof(si_me));
-
-    si_me.sin_family = AF_INET;
-    si_me.sin_port = htons(5105);
-    si_me.sin_addr.s_addr = htonl(INADDR_ANY);
-
-    //bind socket to port
-    if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1)
-    {
-        die("bind");
-    }
-
-    UDP_send_packet(heartbuf, SERVER, PORT);
-    memset(buf,'\0', BUFLEN);
-    //try to receive some data, this is a blocking call
-    socklen_t socketlen = slen;
-    if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
-    {
-      die("recvfrom()");
-    }
-    puts(buf);
-    close(s);
-  */
+    //
+    // if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    // {
+    //     die("socket");
+    // }
+    //
+    // memset((char *) &si_other, 0, sizeof(si_other));
+    // si_other.sin_family = AF_INET;
+    // si_other.sin_port = htons(PORT);
+    //
+    // if (inet_aton(SERVER , &si_other.sin_addr) == 0)
+    // {
+    //     fprintf(stderr, "inet_aton() failed\n");
+    //     exit(1);
+    // }
+    // char heartbuf[128] = "heartbeat";
+    // close(s);
+    //
+    // if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    // {
+    //     die("socket");
+    // }
+    // memset((char *) &si_me, 0, sizeof(si_me));
+    //
+    // si_me.sin_family = AF_INET;
+    // si_me.sin_port = htons(5105);
+    // si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+    //
+    // //bind socket to port
+    // if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1)
+    // {
+    //     die("bind");
+    // }
+    //
+    // UDP_send_packet(heartbuf, SERVER, PORT);
+    // memset(buf,'\0', BUFLEN);
+    // //try to receive some data, this is a blocking call
+    // socklen_t socketlen = slen;
+    // if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
+    // {
+    //   die("recvfrom()");
+    // }
+    // puts(buf);
+    // close(s);
+    //
 
   if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
@@ -121,6 +122,7 @@ int main(void)
   {
       die("bind");
   }
+  i = 10;
   while (1) {
     memset(buf,'\0', BUFLEN);
     //try to receive some data, this is a blocking call
@@ -130,7 +132,8 @@ int main(void)
       die("recvfrom()");
     }
     puts(buf);
-    char udpbuf[128] = "111.122.6.0;12;59;16060.6;.16.;hello here is return value";
+    char udpbuf[128];
+    strncpy(udpbuf, std::to_string(++i).c_str(),sizeof udpbuf);
     if (buf[0] == 'G')
       UDP_send_packet(udpbuf, SERVER, PORT);
   }
