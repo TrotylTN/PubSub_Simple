@@ -135,8 +135,8 @@ static map< pair<string, int>, vector<string> > client_subinfo;
 static map< pair<string, int>, bool> client_connection;
 static vector<pair<string, int> > connected_clients;
 
-// Group Server receiving heatbeat from registery server
-void * hearing_heatbeat(void *arg) {
+// Group Server receiving heartbeat from registery server
+void * hearing_heartbeat(void *arg) {
 	int port_num = *((int *) arg);
 	struct sockaddr_in si_me, si_other;
 
@@ -162,7 +162,7 @@ void * hearing_heatbeat(void *arg) {
 	}
 	// listening for data
 	while (1) {
-		printf("Server start receiving heatbeat by Port [%d]\n", port_num);
+		printf("Server start receiving heartbeat by Port [%d]\n", port_num);
     fflush(stdout);
 		memset(buf, '\0', sizeof(buf));
 
@@ -461,10 +461,10 @@ main (int argc, char **argv)
 {
 	string self_IP = get_local_IP();
 	int port_num;
-	pthread_t t_heatbeat;
-	printf("Enter the port you would like to listen to the server's heatbeat:");
+	pthread_t t_heartbeat;
+	printf("Enter the port you would like to listen to the server's heartbeat:");
 	cin >> port_num;
-	pthread_create(&t_heatbeat, NULL, hearing_heatbeat, (void *) &port_num);
+	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
