@@ -54,10 +54,12 @@ void die(char *s)
 
 int main(void)
 {
-    struct sockaddr_in si_other;
-    int s, i, slen=sizeof(si_other);
-    char buf[BUFLEN];
-    char message[BUFLEN];
+  struct sockaddr_in si_other, si_me;
+  int s, i, slen=sizeof(si_other);
+  char buf[BUFLEN];
+  char message[BUFLEN];
+  /*
+
 
     if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     {
@@ -74,6 +76,24 @@ int main(void)
         exit(1);
     }
     char heartbuf[128] = "heartbeat";
+    close(s);
+
+    if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    {
+        die("socket");
+    }
+    memset((char *) &si_me, 0, sizeof(si_me));
+
+    si_me.sin_family = AF_INET;
+    si_me.sin_port = htons(5105);
+    si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    //bind socket to port
+    if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1)
+    {
+        die("bind");
+    }
+
     UDP_send_packet(heartbuf, SERVER, PORT);
     memset(buf,'\0', BUFLEN);
     //try to receive some data, this is a blocking call
@@ -84,5 +104,36 @@ int main(void)
     }
     puts(buf);
     close(s);
+  */
+
+  if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+  {
+      die("socket");
+  }
+  memset((char *) &si_me, 0, sizeof(si_me));
+
+  si_me.sin_family = AF_INET;
+  si_me.sin_port = htons(5105);
+  si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+
+  //bind socket to port
+  if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1)
+  {
+      die("bind");
+  }
+  while (1) {
+    memset(buf,'\0', BUFLEN);
+    //try to receive some data, this is a blocking call
+    socklen_t socketlen = slen;
+    if (recvfrom(s, buf, BUFLEN, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
+    {
+      die("recvfrom()");
+    }
+    puts(buf);
+    char udpbuf[128] = "111.122.6.0;12;59;16060.6;.16.;hello here is return value";
+    if (buf[0] == 'G')
+      UDP_send_packet(udpbuf, SERVER, PORT);
+  }
+
     return 0;
 }
