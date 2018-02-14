@@ -431,10 +431,31 @@ int * ping_1_svc(struct svc_req *req) {
   return (&result);
 }
 
+void Register(string self_IP, int self_port) {
+	char buf[1024];
+	string combined_str;
+	string port_str = to_string(self_port);
+	// ​[“Register;RPC;IP;Port;ProgramID;Version”]
+	combined_str = "Register;RPC;" + self_IP + ";" +
+								 port_str + ";0x20000001;1";
+	strncpy(buf, combined_str.c_str(), 1024);
+	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
+	UDP_send_packet(buf, "128.101.35.147", 5105);
+	return;
+}
+
+void Deregister(string self_IP, int self_port) {
+
+}
+
+string GetList(string self_IP, int self_port) {
+	char buf[1024];
+}
 
 int
 main (int argc, char **argv)
 {
+	string self_IP = get_local_IP();
 	int port_num;
 	pthread_t t_heatbeat;
 	printf("Enter the port you would like to listen to the server's heatbeat:");

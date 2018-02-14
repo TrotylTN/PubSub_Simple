@@ -1,4 +1,6 @@
-#include "pubsub.h"
+#include <string>
+#include <iostream>
+// using namespace std;
 
 int main() {
   // char article[256];
@@ -10,5 +12,5 @@ int main() {
   // cout << endl << sub_article_valid(article) << endl;
   // cout << endl << pub_article_valid(article) << endl;
   //
-  cout << get_local_IP() << endl;
+  std::cout << std::to_string(1233454) << std::endl;
 }

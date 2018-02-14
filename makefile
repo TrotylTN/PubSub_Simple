@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -D_REENTRANT
+CFLAGS = -D_REENTRANT -std=c++11
 LDFLAGS = -lpthread -lnsl
 
 all: GroupServer Client
