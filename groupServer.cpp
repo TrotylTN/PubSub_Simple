@@ -446,6 +446,7 @@ void Register(string self_IP, int self_port) {
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, REG_SERVER, REG_PORT);
+	printf("Register() request has been sent to the registry server\n");
 	return;
 }
 
@@ -458,6 +459,7 @@ void Deregister(string self_IP, int self_port) {
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, REG_SERVER, REG_PORT);
+	printf("Deregister() request has been sent to the registry server\n");
 	return;
 }
 
@@ -522,7 +524,7 @@ void * listen_to_cmd(void *arg) {
 	while (true) {
 		char op[256];
 		printf("Please enter the number to control the server.\n");
-		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice: ");
+		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice:\n ");
 		scanf("%s", op);
 		if (string(op) == "1")
 			GetList(self_IP, port_num);

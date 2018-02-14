@@ -108,6 +108,7 @@ int main() {
       // successfully called the RPC function
       if (*result != 1) {
         // unable to process your request
+				RPC_error_no(*result);
         printf("The server cannot process your request, try again later.\n");
         continue;
       }
@@ -137,6 +138,7 @@ int main() {
         // successfully called the RPC function
         if (*result != 1) {
           // unable to process your request
+					RPC_error_no(*result);
           printf("The server cannot process your request, try again later.\n");
           continue;
         }
@@ -168,6 +170,7 @@ int main() {
         }
         // successfully called the RPC function
         if (*result != 1) {
+					RPC_error_no(*result);
           // unable to process your request
           printf("The server cannot process your request, try again later.\n");
           continue;
@@ -201,6 +204,7 @@ int main() {
         // successfully called the RPC function
         if (*result != 1) {
           // unable to process your request
+					RPC_error_no(*result);
           printf("The server cannot process your request, try again later.\n");
           continue;
         }
@@ -235,6 +239,7 @@ int main() {
         // successfully called the RPC function
         if (*result != 1) {
           // unable to process your request
+					RPC_error_no(*result);
           printf("The server cannot process your request, try again later.\n");
           continue;
         }
@@ -256,6 +261,7 @@ int main() {
         // successfully called the RPC function
         if (*result != 1) {
           // unable to process your request
+					RPC_error_no(*result);
           printf("The server cannot process your request, try again later.\n");
           continue;
         }
@@ -276,6 +282,7 @@ int main() {
         // successfully called the RPC function
         if (*result != 1) {
           // unable to process your request
+					RPC_error_no(*result);
           printf("The server cannot process your request, try again later.\n");
           continue;
         }
