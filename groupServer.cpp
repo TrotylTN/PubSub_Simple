@@ -394,7 +394,6 @@ int * unsubscribe_1_svc(char * ip_addr, int port_num, char * article,
 		result = 3;
 	}
 	pthread_mutex_unlock(&client_operation_lock);
-  result = 1;
   return (&result);
 }
 
