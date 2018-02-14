@@ -153,7 +153,7 @@ int main() {
         printf("  type;originator;org;contents(contents must be blank for subscribe)\n");
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("Enter the article you want to subscribe: ");
-        gets(article_cat);
+        while (strlen(gets(article_cat)) == 0) ;
         if (sub_article_valid(article_cat) == false) {
           printf("ERROR: Your input article subscribe request is invalid\n");
           continue;
@@ -177,7 +177,7 @@ int main() {
         }
 
         // successfully subscribed
-        printf("Your subscribe request {%s} has been sent successfully\n", article_cat);
+        printf("Your subscribe request <%s> has been sent successfully\n", article_cat);
 
       } else if (op_id == "3") {
         // Unsubscribe some article
@@ -186,7 +186,7 @@ int main() {
         printf("  type;originator;org;contents(contents must be blank for unsubscribe)\n");
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("Enter the article you want to unsubscribe: ");
-        gets(article_cat);
+        while (strlen(gets(article_cat)) == 0) ;
         if (sub_article_valid(article_cat) == false) {
           printf("ERROR: Your article unsubscribe request is invalid\n");
           continue;
@@ -210,7 +210,7 @@ int main() {
         }
 
         // successfully unsubscribed
-        printf("Your unsubscribe request {%s} has been sent successfully\n", article_cat);
+        printf("Your unsubscribe request <%s> has been sent successfully\n", article_cat);
 
       } else if (op_id == "4") {
         // Publish an article
@@ -219,7 +219,7 @@ int main() {
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("  For publish purpose, contents must have something and at least one of first three fields is not blank\n");
         printf("Enter the article you want to publish: ");
-        gets(article_cat);
+        while (strlen(gets(article_cat)) == 0) ;
         if (pub_article_valid(article_cat) == false) {
           printf("ERROR: Your article publish request is invalid\n");
           continue;
@@ -245,7 +245,7 @@ int main() {
         }
 
         // successfully published
-        printf("Your publish request {%s} has been sent successfully\n", article_cat);
+        printf("Your publish request <%s> has been sent successfully\n", article_cat);
       } else if (op_id == "0") {
         // Ping only
         result = ping_1(clnt);
