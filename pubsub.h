@@ -194,21 +194,21 @@ string retrieve_org(const char *sub_article) {
 
 void RPC_error_no(int n) {
   if (n == 2)
-    puts("Error: duplicate connection request");
+    puts("ERROR: duplicate connection request");
   else if (n == 3)
-    puts("Error: connection has not established");
+    puts("ERROR: connection has not established");
   else if (n == 4)
-    puts("duplicate subscribe request for a client");
+    puts("ERROR: duplicate subscribe request for a client");
   else if (n == 5)
-    puts("reached the MAXSUBSCRIPE for certain client");
+    puts("ERROR: reached the MAXSUBSCRIPE for certain client");
   else if (n == 6)
-    puts("reached the limit for connected client");
+    puts("ERROR: reached the limit for connected client");
   else if (n == 7)
-    puts("unsubscribe a non-existent subscripition");
+    puts("ERROR: unsubscribe a non-existent subscripition");
   else if (n == 8)
-    puts("invalid subscribe or publish request");
+    puts("ERROR: invalid subscribe or publish request");
   else
-    puts("Error: unknow error");
+    puts("ERROR: unknow error");
 }
 
 // UDP help function implementation
