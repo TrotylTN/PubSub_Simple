@@ -162,8 +162,8 @@ void * hearing_heartbeat(void *arg) {
 		return NULL;
 	}
 	// listening for data
+	printf("Server start receiving heartbeat by Port [%d]\n", port_num);
 	while (1) {
-		printf("Server start receiving heartbeat by Port [%d]\n", port_num);
     fflush(stdout);
 		memset(buf, '\0', sizeof(buf));
 
@@ -175,10 +175,11 @@ void * hearing_heartbeat(void *arg) {
 		}
 		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
 		dest_port = ntohs(si_other.sin_port);
-		printf("received \"%s\" from %s:%d\n", buf, dest_IP, dest_port);
+		printf("received \"%s\" from %s:%d, replying...\n", buf, dest_IP, dest_port);
 
 		// reply
 		UDP_send_packet(buf, REG_SERVER, REG_PORT);
+		printf("heartbeat replied\n");
 	}
 	close(s);
 	return NULL;
