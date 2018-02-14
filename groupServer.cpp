@@ -443,7 +443,7 @@ void Register(string self_IP, int self_port) {
 								 to_string(self_port) + ";0x20000001;1";
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
-	UDP_send_packet(buf, "128.101.35.147", 5105);
+	UDP_send_packet(buf, REG_SERVER, REG_PORT);
 	return;
 }
 
@@ -455,7 +455,7 @@ void Deregister(string self_IP, int self_port) {
 	combined_str = "Deregister;RPC;" + self_IP + ";" + to_string(self_port);
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
-	UDP_send_packet(buf, "128.101.35.147", 5105);
+	UDP_send_packet(buf, REG_SERVER, REG_PORT);
 	return;
 }
 
@@ -468,8 +468,8 @@ string GetList(string self_IP, int self_port) {
 	combined_str = "GetList;RPC;" + self_IP + ";" + to_string(self_port);
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
-	char dest_IP[32] = "128.101.35.147";
-	unsigned short dest_port = 5105;
+	char dest_IP[32] = REG_SERVER;
+	unsigned short dest_port = REG_PORT;
 	string result = "";
 
 	struct sockaddr_in si_other;
@@ -555,7 +555,7 @@ main (int argc, char **argv)
 	// Register the server
 	Register(self_IP, port_num);
 	sigaction(SIGINT, &act, NULL);
-	
+
 	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
 	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
 	// reset all connection
