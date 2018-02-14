@@ -1,5 +1,6 @@
 CC = g++
-CFLAGS = -D_REENTRANT -std=c++11
+CFLAGS = -D_REENTRANT -std=c++11 -w
+# Disabled warnings, remember to clear it before debugging
 LDFLAGS = -lpthread -lnsl
 
 all: GroupServer Client

@@ -151,7 +151,7 @@ int main() {
         printf("  type;originator;org;contents(contents must be blank for subscribe)\n");
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("Enter the article you want to subscribe: ");
-        scanf("%s", article_cat);
+        gets(article_cat);
         if (sub_article_valid(article_cat) == false) {
           printf("ERROR: Your input article subscribe request is invalid\n");
           continue;
@@ -183,7 +183,7 @@ int main() {
         printf("  type;originator;org;contents(contents must be blank for unsubscribe)\n");
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("Enter the article you want to unsubscribe: ");
-        scanf("%s", article_cat);
+        gets(article_cat);
         if (sub_article_valid(article_cat) == false) {
           printf("ERROR: Your article unsubscribe request is invalid\n");
           continue;
@@ -215,7 +215,7 @@ int main() {
         printf("  Note: type must be one of <Sports, Lifestyle, Entertainment, Business, Technology, Science, Politics, Health>\n");
         printf("  For publish purpose, contents must have something and at least one of first three fields is not blank\n");
         printf("Enter the article you want to publish: ");
-        scanf("%s", article_cat);
+        gets(article_cat);
         if (pub_article_valid(article_cat) == false) {
           printf("ERROR: Your article publish request is invalid\n");
           continue;
