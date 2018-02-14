@@ -245,7 +245,9 @@ void publish_to_subscriped_clients(char *article_pub) {
 			string dest_IP = connected_clients[i].first;
 			int port_num = connected_clients[i].second;
 			if (UDP_send_packet(article_pub, dest_IP.c_str(), port_num) == -1) {
-				printf("Tried to send article to %s:%d but failed\n", dest_IP.c_str(), port_num);
+				printf("  Tried to send article to %s:%d but failed\n", dest_IP.c_str(), port_num);
+			} else {
+				printf("  Sent <%s> to %s:%d\n", article_pub, dest_IP.c_str(), port_num);
 			}
 		}
 	}

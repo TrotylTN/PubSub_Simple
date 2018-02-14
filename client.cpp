@@ -40,7 +40,7 @@ void * receiving_article(void *arg) {
 		}
 		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
 		dest_port = ntohs(si_other.sin_port);
-		printf("received article <%s> from %s:%d\n\n", buf, dest_IP, dest_port);
+		printf("\n\n!!!ARTICLE!!!: received article <%s> from %s:%d\n\n", buf, dest_IP, dest_port);
 	}
 	return NULL;
 }
@@ -74,6 +74,7 @@ int main() {
 		(void *) &UDP_port_num
 	);
   // main thread
+	sleep(1);
   while (true) {
     printf("\n");
     printf("----------------------------------------\n");
