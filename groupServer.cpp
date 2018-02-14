@@ -143,6 +143,8 @@ void * hearing_heatbeat(void *arg) {
 	int s, i, slen = sizeof(si_other) , recv_len;
 	char buf[512];
 	char dest_IP[32];
+	memset(buf, 0, sizeof buf);
+	memset(dest_IP, 0, sizeof buf);
 	int dest_port;
 	//create a UDP socket
 	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
@@ -433,11 +435,11 @@ int * ping_1_svc(struct svc_req *req) {
 
 void Register(string self_IP, int self_port) {
 	char buf[1024];
+	memset(buf, 0, sizeof buf);
 	string combined_str;
-	string port_str = to_string(self_port);
 	// ​[“Register;RPC;IP;Port;ProgramID;Version”]
 	combined_str = "Register;RPC;" + self_IP + ";" +
-								 port_str + ";0x20000001;1";
+								 to_string(self_port) + ";0x20000001;1";
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, "128.101.35.147", 5105);
@@ -445,11 +447,13 @@ void Register(string self_IP, int self_port) {
 }
 
 void Deregister(string self_IP, int self_port) {
-
+	//  TODO
 }
 
 string GetList(string self_IP, int self_port) {
+	// TODO
 	char buf[1024];
+	memset(buf, 0, sizeof buf);
 }
 
 int
