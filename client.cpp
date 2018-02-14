@@ -64,15 +64,16 @@ int main() {
   strncpy(self_addr, self_addr_in_string.c_str(), 32);
   printf("Local IP Address is %s\n", self_addr);
 
+	pthread_create(
+		&t_receive_article,
+		NULL,
+		receiving_article,
+		(void *) &UDP_port_num
+	);
+
   printf("Please enter the port # you would like to receive article: ");
   cin >> UDP_port_num;
   // create a thread to bind the port to receive UDP packet for article
-  pthread_create(
-    &t_receive_article,
-    NULL,
-    receiving_article,
-    (void *) &UDP_port_num
-  );
   // main thread
   while (true) {
     printf("\n");
