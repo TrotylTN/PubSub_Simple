@@ -444,7 +444,8 @@ main (int argc, char **argv)
 	client_connection.clear();
 	client_subinfo.clear();
 	connected_clients.clear();
-
+	// server starts
+	printf("Server running...\n");
 	// RPC Initialization
 	register SVCXPRT *transp;
 
