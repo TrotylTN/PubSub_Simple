@@ -16,3 +16,6 @@ clean:
 
 test: test.cpp pubsub.h
 	g++ test.cpp -o test ${LDFLAGS} ${CFLAGS}
+
+registry: fake_registry_server.cpp
+	g++ fake_registry_server.cpp -o fake_registry_server ${LDFLAGS} ${CFLAGS}
