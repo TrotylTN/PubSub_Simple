@@ -4,3 +4,4 @@ Client
 GroupServer
 RegistryServer
 test
+fake_registry_server
