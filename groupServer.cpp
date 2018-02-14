@@ -458,7 +458,7 @@ void Register(string self_IP, int self_port) {
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, REG_SERVER, REG_PORT);
-	printf("Register() request has been sent to the registry server\n");
+	printf("Register(%s) request has been sent to the registry server\n", combined_str.c_str());
 	return;
 }
 
@@ -471,7 +471,7 @@ void Deregister(string self_IP, int self_port) {
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
 	UDP_send_packet(buf, REG_SERVER, REG_PORT);
-	printf("Deregister() request has been sent to the registry server\n");
+	printf("Deregister(%s) request has been sent to the registry server\n", combined_str.c_str());
 	return;
 }
 
@@ -564,6 +564,7 @@ void stop_server(int signo) {
 int
 main (int argc, char **argv)
 {
+	char self_addr[32];
 	struct sigaction act;
 	act.sa_handler = stop_server;
 	sigfillset(&act.sa_mask);
@@ -571,6 +572,9 @@ main (int argc, char **argv)
 	self_IP = get_local_IP();
 	pthread_t t_heartbeat;
 	pthread_t t_listen_cmd;
+	string self_addr_in_string = get_local_IP();
+	strncpy(self_addr, self_addr_in_string.c_str(), 32);
+	printf("Local IP Address is %s\n", self_addr);
 	printf("Enter the port you would like to listen to the server's heartbeat:");
 	cin >> port_num;
 
