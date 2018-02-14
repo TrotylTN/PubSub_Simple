@@ -524,7 +524,7 @@ void * listen_to_cmd(void *arg) {
 	while (true) {
 		char op[256];
 		printf("Please enter the number to control the server.\n");
-		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice:\n ");
+		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice:\n");
 		scanf("%s", op);
 		if (string(op) == "1")
 			GetList(self_IP, port_num);
@@ -561,16 +561,17 @@ main (int argc, char **argv)
 	// Register the server
 	Register(self_IP, port_num);
 	sigaction(SIGINT, &act, NULL);
+	// server starts
+	printf("Server running...\n");
 
 	pthread_create(&t_heartbeat, NULL, hearing_heartbeat, (void *) &port_num);
-	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
 	sleep(1);
+	pthread_create(&t_listen_cmd, NULL, listen_to_cmd, (void *) &port_num);
 	// reset all connection
 	client_connection.clear();
 	client_subinfo.clear();
 	connected_clients.clear();
-	// server starts
-	printf("Server running...\n");
+
 	// RPC Initialization
 	register SVCXPRT *transp;
 
