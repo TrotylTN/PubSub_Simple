@@ -169,20 +169,18 @@ void * hearing_heartbeat(void *arg) {
 
 		socklen_t socketlen = slen;
 		if ((recv_len = recvfrom(s, buf, 512, 0, (struct sockaddr *) &si_other, &socketlen)) == -1) {
-				perror("recfrom error");
-				return NULL;
+			close(s);
+			perror("recfrom error");
+			return NULL;
 		}
 		strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
 		dest_port = ntohs(si_other.sin_port);
 		printf("received \"%s\" from %s:%d\n", buf, dest_IP, dest_port);
 
 		// reply
-		if (sendto(s, buf, recv_len, 0, (struct sockaddr*) &si_other, slen) == -1)
-		{
-			perror("replying error");
-			return NULL;
-		}
+		UDP_send_packet(buf, REG_SERVER, REG_PORT);
 	}
+	close(s);
 	return NULL;
 }
 
@@ -239,7 +237,7 @@ bool subscripition_match(pair<string, int> unique_id, char *article_pub) {
 }
 
 // publish article to subscribed
-void publish_to_subscriped_clients(char *article_pub) {
+void publish_to_subscribed_clients(char *article_pub) {
   for (int i = 0; i < connected_clients.size(); i++) {
 		if (subscripition_match(connected_clients[i], article_pub)) {
 			string dest_IP = connected_clients[i].first;
@@ -408,8 +406,8 @@ int * publish_1_svc(char * article, char * ip_addr, int port_num,
 		// connected
 		if (pub_article_valid(article)) {
 			// valid the publish request
-			publish_to_subscriped_clients(article);
 			printf("Client %s:%d published <%s>\n", ip_addr, port_num, article);
+			publish_to_subscribed_clients(article);
 			// successfully executed
 			result = 1;
 		} else {
