@@ -14,4 +14,4 @@ clean:
 	rm Client GroupServer
 
 test: test.cpp pubsub.h
-	g++ test.cpp -o test
+	g++ test.cpp -o test ${LDFLAGS} ${CFLAGS}
