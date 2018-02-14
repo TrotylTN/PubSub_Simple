@@ -447,7 +447,15 @@ void Register(string self_IP, int self_port) {
 }
 
 void Deregister(string self_IP, int self_port) {
-	//  TODO
+	char buf[1024];
+	memset(buf, 0, sizeof buf);
+	string combined_str;
+	// ​[“Deregister;RPC;IP;Port”]
+	combined_str = "“Deregister;RPC;" + self_IP + ";" + to_string(self_port);
+	strncpy(buf, combined_str.c_str(), 1024);
+	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
+	UDP_send_packet(buf, "128.101.35.147", 5105);
+	return;
 }
 
 string GetList(string self_IP, int self_port) {
