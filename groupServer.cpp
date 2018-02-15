@@ -506,6 +506,9 @@ void * listen_to_cmd(void *arg) {
 			GetList(self_IP, port_num);
 		else if (string(op) == "2") {
 			Deregister(self_IP, port_num);
+			close(s);
+			// close the socket
+			printf("Closed the socket\n");
 			exit(0);
 		}
 		else
