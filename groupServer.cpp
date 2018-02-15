@@ -519,7 +519,7 @@ void stop_server(int signo) {
 	Deregister(self_IP, port_num);
 	printf("Deregistered this server\n");
 	close(s);
-	printf("Closed the socket\n", );
+	printf("Closed the socket\n");
   exit(0);
 }
 
