@@ -139,6 +139,7 @@ static vector<pair<string, int> > connected_clients;
 static string self_IP;
 static int port_num;
 static string shared_GetList_res = "NULL";
+static int s;	// socket
 
 // Lookup the index for the subscripition
 int get_article_index(const pair<string, int> unique_id,
@@ -392,28 +393,14 @@ int * ping_1_svc(struct svc_req *req) {
 // Group Server receiving heartbeat from registery server
 void * hearing_heartbeat(void *arg) {
 	int port_num = *((int *) arg);
-	struct sockaddr_in si_me, si_other;
-
-	int s, i, slen = sizeof(si_other) , recv_len;
+	struct sockaddr_in si_other;
+	int dest_port;
+	int i, slen = sizeof(si_other) , recv_len;
 	char buf[512];
 	char dest_IP[32];
 	memset(buf, 0, sizeof buf);
 	memset(dest_IP, 0, sizeof buf);
-	int dest_port;
-	//create a UDP socket
-	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-		perror("creating socket failed");
-		return NULL;
-	}
-	// zero out the structure
-	memset((char *) &si_me, 0, sizeof(si_me));
-	si_me.sin_family = AF_INET;
-	si_me.sin_port = htons(port_num);
-	si_me.sin_addr.s_addr = htonl(INADDR_ANY);
-	if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1) {
-		perror("bind error");
-		return NULL;
-	}
+
 	// listening for data
 	printf("Server start receiving heartbeat by Port [%d]\n", port_num);
 	while (1) {
@@ -422,7 +409,6 @@ void * hearing_heartbeat(void *arg) {
 
 		socklen_t socketlen = slen;
 		if ((recv_len = recvfrom(s, buf, 512, 0, (struct sockaddr *) &si_other, &socketlen)) == -1) {
-			close(s);
 			perror("recfrom error");
 			return NULL;
 		}
@@ -433,7 +419,8 @@ void * hearing_heartbeat(void *arg) {
 			printf("received \"%s\" from %s:%d, replying...\n", buf, dest_IP, dest_port);
 
 			// reply
-			UDP_send_packet(buf, REG_SERVER, REG_PORT);
+			UDP_send_packet_socket(buf, REG_SERVER, REG_PORT, s);
+
 			printf("heartbeat \"%s\" replied to %s:%d\n", buf, REG_SERVER, REG_PORT);
 		} else {
 			// reply for UDP
@@ -443,7 +430,6 @@ void * hearing_heartbeat(void *arg) {
 			pthread_mutex_unlock(&shared_access);
 		}
 	}
-	close(s);
 	return NULL;
 }
 
@@ -457,7 +443,7 @@ void Register(string self_IP, int self_port) {
 								 to_string(self_port) + ";0x20000001;1";
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
-	UDP_send_packet(buf, REG_SERVER, REG_PORT);
+	UDP_send_packet_socket(buf, REG_SERVER, REG_PORT, s);
 	printf("Register(%s) request has been sent to the registry server\n", combined_str.c_str());
 	return;
 }
@@ -470,7 +456,7 @@ void Deregister(string self_IP, int self_port) {
 	combined_str = "Deregister;RPC;" + self_IP + ";" + to_string(self_port);
 	strncpy(buf, combined_str.c_str(), 1024);
 	// The registry server will be on dio.cs.umn.edu ("128.101.35.147") with port 5105
-	UDP_send_packet(buf, REG_SERVER, REG_PORT);
+	UDP_send_packet_socket(buf, REG_SERVER, REG_PORT, s);
 	printf("Deregister(%s) request has been sent to the registry server\n", combined_str.c_str());
 	return;
 }
@@ -487,34 +473,9 @@ string GetList(string self_IP, int self_port) {
 	unsigned short dest_port = REG_PORT;
 	string result = "";
 
-	struct sockaddr_in si_other;
-	int s; // socket
-	int slen=sizeof(si_other);
-	if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-	{
-			perror("socket error");
-			close(s);
-			return "";
-	}
-	memset((char *) &si_other, 0, sizeof(si_other));
-	si_other.sin_family = AF_INET;
-	si_other.sin_port = htons(dest_port);
+	UDP_send_packet_socket(buf, REG_SERVER, REG_PORT, s);
 
-	if (inet_aton(dest_IP , &si_other.sin_addr) == 0)
-	{
-			fprintf(stderr, "inet_aton() failed\n");
-			close(s);
-			return "";
-	}
-	// send the message
-	if (sendto(s, buf, strlen(buf), 0,
-						 (struct sockaddr *) &si_other, slen)==-1) {
-		perror("sendto failed");
-		close(s);
-		return "";
-	}
 	printf("GetList(%s) request sent.\n", buf);
-	close(s);
 	// receiving data
 	pthread_mutex_lock(&shared_access);
 	pthread_cond_wait(&res_updated, &shared_access);
@@ -527,7 +488,6 @@ string GetList(string self_IP, int self_port) {
 	// if (recvfrom(s, buf, 1024, 0, (struct sockaddr *) &si_other, &socketlen) == -1)
 	// {
 	// 		perror("recvfrom()");
-	// 		close(s);
 	// 		return "";
 	// }
 	// result = string(buf);
@@ -540,12 +500,15 @@ void * listen_to_cmd(void *arg) {
 	while (true) {
 		char op[256];
 		printf("Please enter the number to control the server.\n");
-		printf("  1. GetList()\n  2. Deregister() -- Close the server\nEnter your choice:\n");
+		printf("  1. GetList()\n  2. Deregister() -- Exit the server\nEnter your choice:\n");
 		scanf("%s", op);
 		if (string(op) == "1")
 			GetList(self_IP, port_num);
 		else if (string(op) == "2") {
 			Deregister(self_IP, port_num);
+			close(s);
+			// close the socket
+			printf("Closed the socket\n");
 			exit(0);
 		}
 		else
@@ -558,12 +521,16 @@ void stop_server(int signo) {
 	printf("\nBeing enforced exiting...\n");
 	Deregister(self_IP, port_num);
 	printf("Deregistered this server\n");
+	close(s);
+	printf("Closed the socket\n");
   exit(0);
 }
 
 int
 main (int argc, char **argv)
 {
+	struct sockaddr_in si_me;
+	// set self socket
 	char self_addr[32];
 	struct sigaction act;
 	act.sa_handler = stop_server;
@@ -577,6 +544,21 @@ main (int argc, char **argv)
 	printf("Local IP Address is %s\n", self_addr);
 	printf("Enter the port you would like to listen to the server's heartbeat:");
 	cin >> port_num;
+
+	//create a UDP socket
+	if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+		perror("creating socket failed");
+		return NULL;
+	}
+	// zero out the structure
+	memset((char *) &si_me, 0, sizeof(si_me));
+	si_me.sin_family = AF_INET;
+	si_me.sin_port = htons(port_num);
+	si_me.sin_addr.s_addr = htonl(INADDR_ANY);
+	if( bind(s , (struct sockaddr*)&si_me, sizeof(si_me) ) == -1) {
+		perror("bind error");
+		return NULL;
+	}
 
 	// Register the server
 	Register(self_IP, port_num);
