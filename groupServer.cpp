@@ -518,6 +518,8 @@ void stop_server(int signo) {
 	printf("\nBeing enforced exiting...\n");
 	Deregister(self_IP, port_num);
 	printf("Deregistered this server\n");
+	close(s);
+	printf("Closed the socket\n", );
   exit(0);
 }
 
