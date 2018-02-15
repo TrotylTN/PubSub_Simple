@@ -9,9 +9,9 @@
 #include<unistd.h>
 #include<string>
 
-#define SERVER "128.101.37.48"
+#define SERVER "128.101.39.191"
 #define BUFLEN 512  //Max length of buffer
-#define PORT 8952   //The port on which to send data
+#define PORT 8954   //The port on which to send data
 
 int UDP_send_packet(const char *packet_content,
                     const char *dest_IP,
@@ -60,8 +60,10 @@ int main(void)
   char buf[BUFLEN];
   char message[BUFLEN];
 
+  char dest_IP[32];
+  int dest_port;
 
-    //
+
     // if ( (s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
     // {
     //     die("socket");
@@ -103,9 +105,12 @@ int main(void)
     // {
     //   die("recvfrom()");
     // }
+    // strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
+    // dest_port = ntohs(si_other.sin_port);
+    // printf("received \"%s\" from %s:%d\n", buf, dest_IP, dest_port);
     // puts(buf);
     // close(s);
-    //
+
 
   if ((s=socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
   {
@@ -131,7 +136,10 @@ int main(void)
     {
       die("recvfrom()");
     }
-    puts(buf);
+    strncpy(dest_IP, inet_ntoa(si_other.sin_addr), 32);
+    dest_port = ntohs(si_other.sin_port);
+    printf("received \"%s\" from %s:%d, replying...\n", buf, dest_IP, dest_port);
+    // puts(buf);
     char udpbuf[128];
     strncpy(udpbuf, std::to_string(++i).c_str(),sizeof udpbuf);
     if (buf[0] == 'G')
