@@ -24,8 +24,7 @@
 #define MAXSERVER 100
 #define MAXSTRING 128
 #define MAXSUBSCRIPE 100
-// #define REG_SERVER "128.101.35.147"
-#define REG_SERVER "128.101.39.191"  // fake one
+#define REG_SERVER "128.101.35.147"
 #define REG_PORT 5105
 
 using namespace std;
